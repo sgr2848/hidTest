@@ -1,3 +1,7 @@
+github.com/ebfe/scard v0.0.0-20230420082256-7db3f9b7c8a7 h1:HYAhfGa9dEemCZgGZWL5AvVsctBCsHxl2CI0HUXzHQE=
+github.com/ebfe/scard v0.0.0-20230420082256-7db3f9b7c8a7/go.mod h1:BkYEeWL6FbT4Ek+TcOBnPzEKnL7kOq2g19tTQXkorHY=
+github.com/gorilla/websocket v1.5.0 h1:PPwGk2jz7EePpoHN/+ClbZu8SPxiqlu12wZP/3sWmnc=
+github.com/gorilla/websocket v1.5.0/go.mod h1:YR8l580nyteQvAITg2hZ9XVh4b55+EU/adAjf1fMHhE=
 github.com/sstallion/go-hid v0.14.0 h1:bSCzyw5E9lGrdQb1NXgRYfmf/z+B+DfSftDlmjOMbfk=
 github.com/sstallion/go-hid v0.14.0/go.mod h1:UaqSxWjbdX9mId5JiqsMAnVtZymx/GSvQMgnzHMks2M=
 golang.org/x/sys v0.8.0 h1:EBmGv8NaZBZTWvrbjNoL6HVt+IVy3QDQpJs7VRIw3tU=
