@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 
 const FobComponent = () => {
   const [uid, setUID] = useState([]);
@@ -57,7 +57,9 @@ const FobComponent = () => {
     <div>
       <h2>Smart Card Reader</h2>
       <p>UID: {binaryToHexString(uid)}</p>
-      <button onClick={handleButtonClick}>Connect</button>
+      <button onClick={handleButtonClick}>
+        {isConnected ? "Disconnect" : "Connect"}
+      </button>
     </div>
   );
 };

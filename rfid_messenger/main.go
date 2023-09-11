@@ -1,7 +1,6 @@
 package main
 
 import (
-	"encoding/base64"
 	"encoding/hex"
 	"fmt"
 	"log"
@@ -46,6 +45,7 @@ func main() {
 	go func() {
 		for {
 			uid := <-broadcast
+			log.Println("Sending this UID: ", uid)
 			for client := range clients {
 				err := client.WriteMessage(websocket.TextMessage, uid)
 				if err != nil {
@@ -117,8 +117,6 @@ func main() {
 			if len(response) >= 2 && response[len(response)-2] == 0x90 && response[len(response)-1] == 0x00 {
 				uid := response[:len(response)-2]
 				fmt.Printf("UID: %X\n", uid)
-				// Send the UID to all connected clients via WebSocket
-				// b64UID := convertUIDToBase64(uid)
 				broadcast <- []byte(hex.EncodeToString(uid))
 
 			} else {
@@ -126,9 +124,6 @@ func main() {
 			}
 		}
 	}
-}
-func convertUIDToBase64(uid []byte) string {
-	return base64.StdEncoding.EncodeToString(uid)
 }
 
 func handleWebSocket(w http.ResponseWriter, r *http.Request) {
@@ -162,7 +157,7 @@ func startWebSocketServer() {
 
 		for {
 			uid := <-broadcast
-			log.Println("Uid: ", uid)
+			log.Println("Send to client:", uid)
 			err := socket.WriteMessage(websocket.BinaryMessage, uid) // Send binary data as binary frame
 			if err != nil {
 				log.Println("Failed to send UID to WebSocket client:", err)
@@ -174,6 +169,7 @@ func startWebSocketServer() {
 
 	http.ListenAndServe(":8080", nil)
 }
-func encodeBase64UID(uid []byte) string {
-	return base64.StdEncoding.EncodeToString(uid)
-}
+
+// func encodeBase64UID(uid []byte) string {
+// 	return base64.StdEncoding.EncodeToString(uid)
+// }
