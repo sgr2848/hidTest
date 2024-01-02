@@ -16,8 +16,6 @@ var broadcast = make(chan []byte)
 
 func main() {
 	hexString := "3B8801000305064CAF1C80F6"
-
-	// Convert hexadecimal string to binary data (byte slice)
 	binaryData, err := hex.DecodeString(hexString)
 	if err != nil {
 		fmt.Println("Error decoding hexadecimal string:", err)
@@ -45,12 +43,17 @@ func main() {
 	go func() {
 		for {
 			uid := <-broadcast
-			log.Println("Sending this UID: ", uid)
-			for client := range clients {
-				err := client.WriteMessage(websocket.TextMessage, uid)
-				if err != nil {
-					log.Println("Failed to send UID to WebSocket client:", err)
-					delete(clients, client)
+			if uid == nil {
+				continue
+			} else {
+				log.Println("Sending this UID: ", uid)
+				for client := range clients {
+					time.Sleep(1 * time.Second)
+					err := client.WriteMessage(websocket.TextMessage, uid)
+					if err != nil {
+						log.Println("Failed to send UID to WebSocket client:", err)
+						delete(clients, client)
+					}
 				}
 			}
 		}
@@ -62,23 +65,25 @@ func main() {
 		if err != nil {
 			log.Println("Failed to list readers:", err)
 			// Wait for a while before trying again
-			time.Sleep(5 * time.Second)
+			time.Sleep(2 * time.Second)
 			continue
 		}
 
 		if len(readers) == 0 {
+			broadcast <- []byte{110, 111, 95, 114, 101, 97, 100, 101, 114}
 			log.Println("No smart card reader found. Waiting for a reader...")
 			// Wait for a while before trying again
-			time.Sleep(5 * time.Second)
+			time.Sleep(2 * time.Second)
 			continue
 		}
 
 		// Connect to the first reader (if available)
 		reader, err := ctx.Connect(readers[0], scard.ShareShared, scard.ProtocolAny)
 		if err != nil {
+			broadcast <- []byte{99, 111, 110, 110, 101, 99, 116, 95, 102, 97, 105, 108, 101, 100}
 			log.Println("Failed to connect to the reader:", err)
 			// Wait for a while before trying again
-			time.Sleep(5 * time.Second)
+			time.Sleep(2 * time.Second)
 			continue
 		}
 
@@ -99,17 +104,15 @@ func main() {
 			} else if err != nil {
 				log.Println("Error checking card status:", err)
 				// Wait for a while before trying again
-				time.Sleep(5 * time.Second)
+				time.Sleep(2 * time.Second)
 				break
 			}
-
-			// Send the proprietary Get Data command to retrieve the UID
 			apduCommand := []byte{0xFF, 0xCA, 0x00, 0x00, 0x00}
 			response, err := reader.Transmit(apduCommand)
 			if err != nil {
 				log.Println("Failed to send APDU command:", err)
 				// Wait for a while before trying again
-				time.Sleep(5 * time.Second)
+				time.Sleep(2 * time.Second)
 				break
 			}
 
@@ -169,7 +172,3 @@ func startWebSocketServer() {
 
 	http.ListenAndServe(":8080", nil)
 }
-
-// func encodeBase64UID(uid []byte) string {
-// 	return base64.StdEncoding.EncodeToString(uid)
-// }

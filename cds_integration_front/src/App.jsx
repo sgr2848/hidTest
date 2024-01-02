@@ -11,7 +11,7 @@ function App() {
     const checkAuthentication = async () => {
       try {
         const response = await axios.get(
-          "http://localhost:8000/saml/is_authenticated",
+          "http://localhost:8000/auth/saml/is_authenticated",
           {
             withCredentials: true,
             headers: {
