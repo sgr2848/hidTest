@@ -106,12 +106,7 @@ func handleHidEvents() {
 	}
 }
 func main() {
-	hexString := "3B8801000305064CAF1C80F6"
-	_, err := hex.DecodeString(hexString)
-	if err != nil {
-		fmt.Println("Error decoding hexadecimal string:", err)
-		return
-	}
+	log.Println("Starting the messenger...")
 	go handleHidEvents()
 	http.HandleFunc("/", handleWebSocket)
 	go startWebSocketServer()
