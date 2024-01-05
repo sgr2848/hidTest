@@ -21,26 +21,40 @@ var (
 	mutex     = sync.Mutex{}
 )
 
-func parseRFIDData(buffers [][3]byte) {
+func cleanByte(buffer [][]byte) []byte {
+	var result []byte
+
+	for _, arr := range buffer {
+		for _, val := range arr {
+			if val >= 30 && val <= 40 {
+				result = append(result, val)
+			}
+		}
+	}
+
+	return result
+}
+
+func parseRFIDData(buffers []byte) {
 	//much wow
-	digitMapping := map[[3]byte]int{
-		[3]byte{2, 0, 39}: 0,
-		[3]byte{2, 0, 30}: 1,
-		[3]byte{2, 0, 31}: 2,
-		[3]byte{2, 0, 32}: 3,
-		[3]byte{2, 0, 33}: 4,
-		[3]byte{2, 0, 34}: 5,
-		[3]byte{2, 0, 35}: 6,
-		[3]byte{2, 0, 36}: 7,
-		[3]byte{2, 0, 37}: 8,
-		[3]byte{2, 0, 38}: 9,
+	digitMapping := map[byte]int{
+		39: 0,
+		30: 1,
+		31: 2,
+		32: 3,
+		33: 4,
+		34: 5,
+		35: 6,
+		36: 7,
+		37: 8,
+		38: 9,
 	}
 
 	var result strings.Builder
 
 	for _, buf := range buffers {
-		if digit, ok := digitMapping[buf]; ok && buf != [3]byte{2, 0, 0} && buf != [3]byte{2, 0, 40} {
-			// Append the digit to the result
+		// final element of byte arr
+		if digit, ok := digitMapping[buf]; ok && buf != 0 && buf != 40 {
 			result.WriteString(strconv.Itoa(digit))
 		}
 	}
@@ -82,20 +96,23 @@ func handleHidEvents() {
 			// defer dev.Close()
 			// dev.SetNonblock(true)
 			count := 0
-			var buffers [][3]byte
+			var buffers [][]byte
 			for {
-				buf := make([]byte, 3)
+				buf := make([]byte, 9)
 				n, err := dev.Read(buf)
+				log.Println(n)
 				if err != nil {
 					log.Println("Error reading:", err)
 					break
 				}
 				if n > 0 {
 					count++
-					buffers = append(buffers, [3]byte{buf[0], buf[1], buf[2]})
+					buffers = append(buffers, buf[:n])
 					if len(buffers) == 26 {
 						log.Println("buffers:", buffers)
-						parseRFIDData(buffers)
+						cleanBufValue := cleanByte(buffers)
+						log.Println(cleanBufValue)
+						parseRFIDData(cleanBufValue)
 						buffers = nil
 
 					}
