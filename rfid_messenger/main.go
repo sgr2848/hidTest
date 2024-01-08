@@ -240,8 +240,9 @@ func handleWebSocket(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Failed to upgrade connection to WebSocket", http.StatusInternalServerError)
 		return
 	}
-
+	mutex.Lock()
 	clients[conn] = true
+	mutex.Unlock()
 }
 
 func startWebSocketServer() {
@@ -259,12 +260,13 @@ func startWebSocketServer() {
 		for {
 			uid := <-broadcast
 			log.Println(uid)
-
+			mutex.Lock()
 			err := socket.WriteMessage(websocket.TextMessage, uid) // Send binary data as binary frame
 			if err != nil {
 				delete(clients, socket)
 				break
 			}
+			mutex.Unlock()
 		}
 	})
 
